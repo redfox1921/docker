@@ -1,0 +1,25 @@
+ services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      DOMAIN: "https://vaultwarden.com"             # später deine echte HTTPS-URL
+      SIGNUPS_ALLOWED: "true"                       # nach dem Anlegen deines Accounts auf "false"
+      INVITATIONS_ALLOWED: "false"
+      SHOW_PASSWORD_HINT: "false"
+      # Jedes $ im Hash verdoppeln ($$), sonst ersetzt Compose Teile davon:
+      ADMIN_TOKEN: 'ein-sehr-sicheres-admin-token-hier'
+      LOG_LEVEL: "warn"
+      TZ: "Europe/Berlin"
+    volumes:
+      - ./vw-data:/data
+    ports:
+      - "8081:80"
+    networks:
+      - npm-net
+
+networks:
+  npm-net:
+    external:
+      true
