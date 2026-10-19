@@ -1,6 +1,8 @@
-**Text**
-__Hash erzeugen:__
-Der Befehl ist interaktiv. Er fragt zweimal nach dem Passwort, das ich nicht eingeben darf. Führ ihn daher selbst in deinem Terminal aus:
+
+Hash erzeugen:
+
+Verbinde dich per SSH, zum Beispiel mit ssh benutzer@server-ip, und führe denn Befehl aus.
+Der Befehl ist interaktiv. Er fragt zweimal nach dem Passwort.
 
 docker run --rm -it vaultwarden/server:latest /vaultwarden hash
 
