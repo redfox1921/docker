@@ -8,7 +8,6 @@
       SIGNUPS_ALLOWED: "true"                       # nach dem Anlegen deines Accounts auf "false"
       INVITATIONS_ALLOWED: "false"
       SHOW_PASSWORD_HINT: "false"
-      # docker run --rm -it vaultwarden/server:latest /vaultwarden hash
       # Jedes $ im Hash verdoppeln ($$), sonst ersetzt Compose Teile davon:
       ADMIN_TOKEN: 'ein-sehr-sicheres-admin-token-hier'
       LOG_LEVEL: "warn"
