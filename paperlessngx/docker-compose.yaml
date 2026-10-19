@@ -1,0 +1,92 @@
+services:
+  paperless-redis:
+    image: docker.io/library/redis:latest
+    container_name: paperless-redis
+    restart: always
+    command: redis-server --save "" --appendonly no
+    tmpfs:
+      - /data
+    networks:
+      default:
+        ipv4_address: 192.168.188.163
+
+  paperless-db:
+    image: docker.io/library/postgres:18
+    container_name: paperless-postgres
+    restart: always
+    volumes:
+      - /volume1/docker/paperless/pgdata:/var/lib/postgresql
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: ${PAPERLESS_DB_PASSWORD}
+    networks:
+      default:
+        ipv4_address: 192.168.188.164
+
+  webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:3.3.2
+    container_name: paperlessngx
+    restart: always
+    depends_on:
+      - paperless-db
+      - paperless-redis
+      - gotenberg
+      - tika
+    volumes:
+      - /volume1/docker/paperless/data:/usr/src/paperless/data
+      - /volume1/docker/paperless/media:/usr/src/paperless/media
+      - /volume1/docker/paperless/export:/usr/src/paperless/export
+      - /volume1/Paperless:/usr/src/paperless/consume
+    env_file: stack.env
+    environment:
+      PAPERLESS_REDIS: redis://192.168.188.163:6379
+      PAPERLESS_DBHOST: 192.168.188.164
+      PAPERLESS_DBPORT: 5432
+      PAPERLESS_DBNAME: paperless
+      PAPERLESS_DBUSER: paperless
+      PAPERLESS_DBPASS: ${PAPERLESS_DB_PASSWORD}
+      PAPERLESS_URL: https://paperless.redfox192.loan
+      PAPERLESS_USE_X_FORWARD_HOST: "true"
+      PAPERLESS_USE_X_FORWARD_PORT: "true"
+      PAPERLESS_PROXY_SSL_HEADER: '["HTTP_X_FORWARDED_PROTO", "https"]'
+      PAPERLESS_TIKA_ENABLED: 1
+      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://192.168.188.166:3000
+      PAPERLESS_TIKA_ENDPOINT: http://192.168.188.167:9998
+      PAPERLESS_WORKER_TIMEOUT: 4000
+      PAPERLESS_CONSUMER_ENABLE_BARCODES: 1
+      PAPERLESS_CONSUMER_ENABLE_ASN_BARCODE: 1
+      PAPERLESS_CONSUMER_BARCODE_UPSCALE: 1.5
+      PAPERLESS_CONSUMER_BARCODE_DPI: 600
+      PAPERLESS_CONSUMER_BARCODE_SCANNER: ZXING
+    networks:
+      default:
+        ipv4_address: 192.168.188.165
+      npm-net:
+
+  gotenberg:
+    image: docker.io/gotenberg/gotenberg:latest
+    container_name: gotenberg
+    restart: always
+    networks:
+      default:
+        ipv4_address: 192.168.188.166
+    command:
+      - "gotenberg"
+      - "--chromium-disable-javascript=true"
+      - "--chromium-allow-list=^file:///tmp/.*"
+
+  tika:
+    image: docker.io/apache/tika:latest
+    container_name: tika
+    restart: always
+    networks:
+      default:
+        ipv4_address: 192.168.188.167
+
+networks:
+  default:
+    name: mvl
+    external: true
+  npm-net:
+    external: true
