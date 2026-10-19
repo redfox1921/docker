@@ -1,0 +1,20 @@
+services:
+  adguardhome:
+    image: adguard/adguardhome
+    container_name: adguard
+    restart: unless-stopped
+    volumes:
+      - /volume1/docker/adguard/work:/opt/adguardhome/work
+      - /volume1/docker/adguard/conf:/opt/adguardhome/conf
+    healthcheck:
+      test: ["CMD-SHELL", "nslookup -timeout=3 cloudflare.com 127.0.0.1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      mvl:
+        ipv4_address: 192.168.188.162
+networks:
+  mvl:
+    external: true
