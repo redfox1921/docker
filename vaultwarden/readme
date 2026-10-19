@@ -1,5 +1,5 @@
 
-Vor den Dateien der Admin-Token. Vaultwarden hat eine Verwaltungsseite, und ihr Passwort willst du nicht im Klartext in einer Datei stehen haben. Vaultwarden bringt dafür einen 
+Vaultwarden hat eine Verwaltungsseite, und ihr Passwort willst du nicht im Klartext in einer Datei stehen haben. Vaultwarden bringt dafür einen 
 Hash-Generator mit, den du im Container aufrufst; er fragt zweimal nach einem Passwort und gibt eine lange Zeichenkette aus, die mit $argon2id$ beginnt.
 
 
