@@ -1,1 +1,55 @@
+services:
+  teamspeak:
+    image: teamspeaksystems/teamspeak6-server:${TS_IMAGE_TAG:-latest}
+    container_name: teamspeak-server
+    restart: unless-stopped
+    ports:
+      - "9987:9987/udp"   # Voice
+      - "30033:30033/tcp" # File transfer
+      # - "10080:10080/tcp" # WebQuery
+      # - "10022:10022/tcp" # SSHQuery
+      # - "9187:9187/tcp"   # Prometheus metrics
+    environment:
+      - TSSERVER_LICENSE_ACCEPTED=accept
+      - TSSERVER_DEFAULT_PORT=9987
+      - TSSERVER_VOICE_IP=0.0.0.0
+      - TSSERVER_FILE_TRANSFER_PORT=30033
+      - TSSERVER_FILE_TRANSFER_IP=0.0.0.0
+
+      - TSSERVER_DATABASE_PLUGIN=mariadb
+      - TSSERVER_DATABASE_SQL_CREATE_PATH=create_mariadb
+      - TSSERVER_DATABASE_HOST=mariadb
+      - TSSERVER_DATABASE_PORT=3306
+      - TSSERVER_DATABASE_NAME=${DB_NAME}
+      - TSSERVER_DATABASE_USERNAME=${DB_USER}
+      - TSSERVER_DATABASE_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - teamspeak-data:/var/tsserver
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  mariadb:
+    image: mariadb:${MARIADB_TAG:-11.4}
+    container_name: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  teamspeak-data:
+    name: teamspeak-data
+  mariadb-data:
+    name: mariadb-data
 
