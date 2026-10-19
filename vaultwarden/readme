@@ -1,4 +1,5 @@
-***1 Hash erzeugen:***
+**Text**
+__Hash erzeugen:__
 Der Befehl ist interaktiv. Er fragt zweimal nach dem Passwort, das ich nicht eingeben darf. Führ ihn daher selbst in deinem Terminal aus:
 
 docker run --rm -it vaultwarden/server:latest /vaultwarden hash
