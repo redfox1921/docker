@@ -1,4 +1,4 @@
-## Hash erzeugen
+## Admin Token erzeugen
 
 Verbinde dich per SSH, zum Beispiel mit `ssh benutzer@server-ip`, und führe den Befehl aus.
 Der Befehl ist interaktiv und fragt zweimal nach dem Passwort:
