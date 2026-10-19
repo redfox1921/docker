@@ -1,6 +1,15 @@
-
-Vaultwarden hat eine Verwaltungsseite, und ihr Passwort willst du nicht im Klartext in einer Datei stehen haben. Vaultwarden bringt dafür einen 
-Hash-Generator mit, den du im Container aufrufst; er fragt zweimal nach einem Passwort und gibt eine lange Zeichenkette aus, die mit $argon2id$ beginnt.
-
+***1 Hash erzeugen:***
+Der Befehl ist interaktiv. Er fragt zweimal nach dem Passwort, das ich nicht eingeben darf. Führ ihn daher selbst in deinem Terminal aus:
 
 docker run --rm -it vaultwarden/server:latest /vaultwarden hash
+
+Hash eintragen: Die Ausgabe ist der $argon2id$...-String. Du trägst ihn als ADMIN_TOKEN ein.
+
+In einer docker-compose.yml musst du jedes $ im Hash als $$ schreiben, sonst versucht Compose, es als Variable aufzulösen.
+
+In einer .env-Datei oder bei docker run -e setzt du den Hash in einfache Anführungszeichen.
+
+environment:
+  ADMIN_TOKEN: '$$argon2id$$v=19$$m=65540,t=3,p=4$$...'
+
+Container neu starten und einloggen: Die Verwaltungsseite liegt unter https://<deine-domain>/admin. Dort loggst du dich mit dem Klartext-Passwort ein, nicht mit dem Hash.
