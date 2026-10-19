@@ -46,7 +46,8 @@ services:
       PAPERLESS_DBNAME: paperless
       PAPERLESS_DBUSER: paperless
       PAPERLESS_DBPASS: ${PAPERLESS_DB_PASSWORD}
-      PAPERLESS_URL: https://paperless.redfox192.loan
+      # Url hier eintragen
+      PAPERLESS_URL: https://paperless.de
       PAPERLESS_USE_X_FORWARD_HOST: "true"
       PAPERLESS_USE_X_FORWARD_PORT: "true"
       PAPERLESS_PROXY_SSL_HEADER: '["HTTP_X_FORWARDED_PROTO", "https"]'
