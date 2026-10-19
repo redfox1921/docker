@@ -8,8 +8,8 @@ services:
       - TZ=UTC    # optional: set desired timezone
     user: 1000:10 # optional: replace with your own user/group or uid/gid
     volumes:
-      - /var/cache/ntfy:/var/cache/ntfy
-      - /etc/ntfy:/etc/ntfy
+      - /volume1/docker/ntfy/cache:/var/cache/ntfy
+      - /volume1/docker/ntfy/config:/etc/ntfy
     ports:
       - 4230:80
     healthcheck: # optional: remember to adapt the host:port to your environment
