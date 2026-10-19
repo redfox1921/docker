@@ -1,5 +1,5 @@
 
-Hash erzeugen:
+**Hash erzeugen:**
 
 Verbinde dich per SSH, zum Beispiel mit ssh benutzer@server-ip, und führe denn Befehl aus.
 Der Befehl ist interaktiv. Er fragt zweimal nach dem Passwort.
