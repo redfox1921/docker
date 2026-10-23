@@ -18,6 +18,7 @@ AFK_CHANNEL = os.environ.get("AFK_CHANNEL", "AFK").strip().lower()
 IDLE_SECONDS = int(float(os.environ.get("IDLE_MINUTES", "5")) * 60)
 CHECK_INTERVAL = int(os.environ.get("CHECK_INTERVAL", "30"))
 RETURN_BACK = os.environ.get("RETURN_BACK", "true").strip().lower() in ("1", "true", "yes")
+AWAY_MOVE = os.environ.get("AWAY_MOVE", "true").strip().lower() in ("1", "true", "yes")
 
 ERROR_RE = re.compile(r"error id=(\d+) msg=(\S*)")
 ESCAPES = {"\\s": " ", "\\p": "|", "\\/": "/", "\\\\": "\\", "\\n": "\n", "\\r": "\r", "\\t": "\t"}
@@ -95,7 +96,7 @@ def move_back(query, row, afk_cid):
 
 
 def sweep(query, afk_cid):
-    clients = [row for row in parse(query.run("clientlist -times"))
+    clients = [row for row in parse(query.run("clientlist -times -away"))
                if row.get("client_type") == "0"]
     online = {row["clid"] for row in clients}
 
@@ -106,17 +107,19 @@ def sweep(query, afk_cid):
     for row in clients:
         clid = row["clid"]
         idle = int(row.get("client_idle_time", "0")) // 1000
+        away = AWAY_MOVE and row.get("client_away") == "1"
 
         if row.get("cid") == afk_cid:
-            if RETURN_BACK and clid in moved and idle < IDLE_SECONDS:
+            if RETURN_BACK and clid in moved and not away and idle < IDLE_SECONDS:
                 move_back(query, row, afk_cid)
             continue
 
         moved.pop(clid, None)  # client left AFK on its own
-        if idle >= IDLE_SECONDS:
+        if away or idle >= IDLE_SECONDS:
             query.run(f"clientmove clid={clid} cid={afk_cid}")
             moved[clid] = row["cid"]
-            log(f"moved {row.get('client_nickname')} to AFK after {idle // 60} min idle")
+            reason = "set to away" if away else f"idle for {idle // 60} min"
+            log(f"moved {row.get('client_nickname')} to AFK ({reason})")
 
 
 def main():
