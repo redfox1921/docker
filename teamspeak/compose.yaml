@@ -46,6 +46,7 @@ services:
       retries: 3
 
   afk-mover:
+    container_name: teamspeak-afk-mover
     image: python:3.15-slim
     restart: unless-stopped
     depends_on:
