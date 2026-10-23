@@ -4,18 +4,14 @@ services:
     container_name: teamspeak-server
     restart: unless-stopped
     ports:
-      - "9987:9987/udp"   # Voice
-      - "30033:30033/tcp" # File transfer
-      # - "10080:10080/tcp" # WebQuery
-      # - "10022:10022/tcp" # SSHQuery
-      # - "9187:9187/tcp"   # Prometheus metrics
+      - "9987:9987/udp"
+      - "30033:30033/tcp"
     environment:
       - TSSERVER_LICENSE_ACCEPTED=accept
       - TSSERVER_DEFAULT_PORT=9987
       - TSSERVER_VOICE_IP=0.0.0.0
       - TSSERVER_FILE_TRANSFER_PORT=30033
       - TSSERVER_FILE_TRANSFER_IP=0.0.0.0
-
       - TSSERVER_DATABASE_PLUGIN=mariadb
       - TSSERVER_DATABASE_SQL_CREATE_PATH=create_mariadb
       - TSSERVER_DATABASE_HOST=mariadb
@@ -23,6 +19,8 @@ services:
       - TSSERVER_DATABASE_NAME=${DB_NAME}
       - TSSERVER_DATABASE_USERNAME=${DB_USER}
       - TSSERVER_DATABASE_PASSWORD=${DB_PASSWORD}
+      - TSSERVER_QUERY_ADMIN_PASSWORD=${TS_QUERY_PASSWORD}
+      - TSSERVER_QUERY_SSH_ENABLED=1
     volumes:
       - teamspeak-data:/var/tsserver
     depends_on:
@@ -32,6 +30,7 @@ services:
   mariadb:
     image: mariadb:${MARIADB_TAG:-11.4}
     container_name: mariadb
+    restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
       - MYSQL_DATABASE=${DB_NAME}
@@ -39,7 +38,6 @@ services:
       - MYSQL_PASSWORD=${DB_PASSWORD}
     volumes:
       - mariadb-data:/var/lib/mysql
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       start_period: 10s
@@ -47,9 +45,25 @@ services:
       timeout: 5s
       retries: 3
 
+  afk-mover:
+    image: python:3.15-slim
+    restart: unless-stopped
+    depends_on:
+      - teamspeak
+    working_dir: /app
+    volumes:
+      - /volume1/docker/teamspeak/afk_mover.py:/app/afk_mover.py:ro
+    command: ["sh", "-c", "pip install --no-cache-dir paramiko && python /app/afk_mover.py"]
+    environment:
+      - TS_HOST=teamspeak
+      - TS_PORT=10022
+      - TS_USER=serveradmin
+      - TS_PASSWORD=${TS_QUERY_PASSWORD}
+      - AFK_CHANNEL=AFK
+      - IDLE_MINUTES=5
+
 volumes:
   teamspeak-data:
     name: teamspeak-data
   mariadb-data:
     name: mariadb-data
-
